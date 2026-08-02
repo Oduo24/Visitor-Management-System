@@ -16,6 +16,7 @@ ROLE_PERMISSIONS = {
         Permission.VISIT_CREATE,
         Permission.VISIT_READ,
         Permission.VISIT_UPDATE,
+        Permission.VISIT_DELETE,
         Permission.VISIT_APPROVE,
         Permission.VISIT_CHECKIN,
         Permission.VISIT_CHECKOUT,

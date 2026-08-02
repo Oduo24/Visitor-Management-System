@@ -8,7 +8,7 @@ class VisitStatus:
 
 class VisitType:
     PREBOOKED = "PREBOOKED"
-    WALKIN = "WALKIN"
+    WALK_IN = "WALK_IN"
 
 class Roles:
     ADMIN = "Admin"

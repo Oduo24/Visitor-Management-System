@@ -8,6 +8,7 @@ class Permission:
     VISIT_CREATE = "visit.create"
     VISIT_READ = "visit.read"
     VISIT_UPDATE = "visit.update"
+    VISIT_DELETE = "visit.delete"
     VISIT_APPROVE = "visit.approve"
     VISIT_CHECKIN = "visit.checkin"
     VISIT_CHECKOUT = "visit.checkout"
