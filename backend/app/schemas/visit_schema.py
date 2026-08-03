@@ -38,33 +38,20 @@ class VisitUpdateSchema(Schema):
 class VisitResponseSchema(Schema):
 
     id = fields.UUID()
-
     visitor_id = fields.UUID()
-
     host_id = fields.UUID()
-
     destination_id = fields.UUID()
-
     site_id = fields.UUID()
-
     visit_type = fields.String()
-
     status = fields.String()
-
     purpose = fields.String()
-
     expected_arrival = fields.DateTime()
-
     expected_departure = fields.DateTime()
-
     checked_in_at = fields.DateTime()
-
     checked_out_at = fields.DateTime()
-
+    approved_by = fields.UUID()
+    approved_at = fields.DateTime()
     badge_number = fields.String()
-
     notes = fields.String()
-
     created_at = fields.DateTime()
-
     updated_at = fields.DateTime()

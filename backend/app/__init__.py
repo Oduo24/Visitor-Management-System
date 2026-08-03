@@ -44,6 +44,7 @@ def create_app(config_class=None):
     from app.api.visits import visit_bp
     from app.api.prebook_visit_api import prebook_visit_bp
     from app.api.walkin_visits import walkin_visit_bp
+    from app.api.visit_approval import approval_bp
  
 
     app.register_blueprint(health_bp, url_prefix="/api")
@@ -62,5 +63,6 @@ def create_app(config_class=None):
     app.register_blueprint(visit_bp, url_prefix="/api/visits")
     app.register_blueprint(prebook_visit_bp, url_prefix="/api/prebook-visits")
     app.register_blueprint(walkin_visit_bp, url_prefix="/api/walkin-visits")
+    app.register_blueprint(approval_bp, url_prefix="/api/visits")
 
     return app
