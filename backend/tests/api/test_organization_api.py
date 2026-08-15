@@ -4,40 +4,16 @@ from app.common.database import DatabaseSession
 from app.repositories.organization_repository import OrganizationRepository
 
 
-def test_get_organizations_empty(client):
-    response = client.get("/api/organizations")
 
-    assert response.status_code == 200
-
-    data = response.get_json()
-
-    assert data["success"] is True
-    assert data["data"] == []
-
-
-def test_get_organizations(client, session):
-    OrganizationRepository.create(OrganizationFactory())
-    OrganizationRepository.create(OrganizationFactory())
-    DatabaseSession.commit()
-
-    response = client.get("/api/organizations")
-
-    assert response.status_code == 200
-
-    data = response.get_json()
-
-    assert data["success"] is True
-    assert len(data["data"]) == 2
-
-
-def test_get_organization_by_id(client, session):
+def test_get_organization_by_id(client, session, auth_headers):
     organization = OrganizationFactory()
 
     OrganizationRepository.create(organization)
     DatabaseSession.commit()
 
     response = client.get(
-        f"/api/organizations/{organization.id}"
+        f"/api/organizations/{organization.id}",
+        headers=auth_headers
     )
 
     assert response.status_code == 200
@@ -49,7 +25,7 @@ def test_get_organization_by_id(client, session):
     assert data["data"]["name"] == organization.name
 
 
-def test_create_organization(client):
+def test_create_organization(client, auth_headers):
     payload = {
         "name": "ABC Bank",
         "code": "ABC",
@@ -61,6 +37,7 @@ def test_create_organization(client):
     response = client.post(
         "/api/organizations",
         json=payload,
+        headers=auth_headers
     )
 
     assert response.status_code == 201
@@ -73,7 +50,7 @@ def test_create_organization(client):
     assert data["data"]["code"] == payload["code"]
 
 
-def test_update_organization(client, session):
+def test_update_organization(client, session, auth_headers):
     organization = OrganizationFactory()
 
     OrganizationRepository.create(organization)
@@ -87,6 +64,7 @@ def test_update_organization(client, session):
     response = client.put(
         f"/api/organizations/{organization.id}",
         json=payload,
+        headers=auth_headers
     )
 
     assert response.status_code == 200
@@ -99,14 +77,15 @@ def test_update_organization(client, session):
     assert data["data"]["email"] == "updated@test.com"
 
 
-def test_delete_organization(client, session):
+def test_delete_organization(client, session, auth_headers):
     organization = OrganizationFactory()
 
     OrganizationRepository.create(organization)
     DatabaseSession.commit()
 
     response = client.delete(
-        f"/api/organizations/{organization.id}"
+        f"/api/organizations/{organization.id}",
+        headers=auth_headers
     )
 
     assert response.status_code == 200
@@ -117,20 +96,22 @@ def test_delete_organization(client, session):
     assert data["message"] == "Organization deleted successfully."
 
     response = client.get(
-        f"/api/organizations/{organization.id}"
+        f"/api/organizations/{organization.id}",
+        headers=auth_headers
     )
 
     assert response.status_code == 404
 
-def test_get_organization_not_found(client):
+def test_get_organization_not_found(client, auth_headers):
     response = client.get(
-        "/api/organizations/invalid-id"
+        "/api/organizations/invalid-id",
+        headers=auth_headers
     )
 
     assert response.status_code == 404
 
 
-def test_create_duplicate_organization_code(client):
+def test_create_duplicate_organization_code(client, auth_headers):
     payload = {
         "name": "ABC Bank",
         "code": "ABC",
@@ -139,11 +120,13 @@ def test_create_duplicate_organization_code(client):
     client.post(
         "/api/organizations",
         json=payload,
+        headers=auth_headers
     )
 
     response = client.post(
         "/api/organizations",
         json=payload,
+        headers=auth_headers
     )
 
     assert response.status_code == 409

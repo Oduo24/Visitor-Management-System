@@ -9,22 +9,7 @@ from tests.factories.department_factory import DepartmentFactory
 from tests.factories.user_factory import UserFactory
 
 
-def test_get_users(client, session):
-    user = UserFactory()
-
-    OrganizationRepository.create(user.organization)
-    DepartmentRepository.create(user.department)
-    UserRepository.create(user)
-
-    DatabaseSession.commit()
-
-    response = client.get("/api/users")
-
-    assert response.status_code == 200
-    assert len(response.get_json()["data"]) == 1
-
-
-def test_get_user(client, session):
+def test_get_users(client, session, auth_headers):
     user = UserFactory()
 
     OrganizationRepository.create(user.organization)
@@ -34,13 +19,43 @@ def test_get_user(client, session):
     DatabaseSession.commit()
 
     response = client.get(
-        f"/api/users/{user.id}"
+        "/api/users",
+        headers=auth_headers
     )
 
     assert response.status_code == 200
 
+    data = response.get_json()
 
-def test_create_user(client, session):
+    assert data["success"] is True
+
+    user_ids = {
+        item["id"]
+        for item in data["data"]
+    }
+
+    assert str(user.id) in user_ids
+
+
+def test_get_user(client, session, auth_headers):
+    user = UserFactory()
+
+    OrganizationRepository.create(user.organization)
+    DepartmentRepository.create(user.department)
+    UserRepository.create(user)
+
+    DatabaseSession.commit()
+
+    response = client.get(
+        f"/api/users/{user.id}",
+        headers=auth_headers
+    )
+
+
+    assert response.status_code == 200
+
+
+def test_create_user(client, session, auth_headers):
     organization = OrganizationFactory()
 
     department = DepartmentFactory(
@@ -60,7 +75,7 @@ def test_create_user(client, session):
         "last_name": "Doe",
         "email": "john@test.com",
         "phone": "0712345678",
-        "employee_number": "EMP001",
+        "employee_number": "EMP002",
         "job_title": "ICT Manager",
         "password": "Password123",
     }
@@ -68,12 +83,13 @@ def test_create_user(client, session):
     response = client.post(
         "/api/users",
         json=payload,
+        headers=auth_headers
     )
 
     assert response.status_code == 201
 
 
-def test_update_user(client, session):
+def test_update_user(client, session, auth_headers):
     user = UserFactory()
 
     OrganizationRepository.create(user.organization)
@@ -84,6 +100,8 @@ def test_update_user(client, session):
 
     response = client.put(
         f"/api/users/{user.id}",
+        headers=auth_headers,
+    
         json={
             "job_title": "Finance Manager"
         },
@@ -92,7 +110,7 @@ def test_update_user(client, session):
     assert response.status_code == 200
 
 
-def test_delete_user(client, session):
+def test_delete_user(client, session, auth_headers):
     user = UserFactory()
 
     OrganizationRepository.create(user.organization)
@@ -102,7 +120,8 @@ def test_delete_user(client, session):
     DatabaseSession.commit()
 
     response = client.delete(
-        f"/api/users/{user.id}"
+        f"/api/users/{user.id}",
+        headers=auth_headers
     )
 
     assert response.status_code == 200

@@ -13,7 +13,7 @@ from tests.factories.role_factory import RoleFactory
 from tests.factories.user_site_role_factory import UserSiteRoleFactory
 
 
-def test_get_assignments(client, session):
+def test_get_assignments(client, session, auth_headers):
     assignment = UserSiteRoleFactory()
 
     OrganizationRepository.create(assignment.user.organization)
@@ -25,13 +25,26 @@ def test_get_assignments(client, session):
 
     DatabaseSession.commit()
 
-    response = client.get("/api/user-site-roles")
+    response = client.get(
+        "/api/user-site-roles",
+        headers=auth_headers
+    )
 
     assert response.status_code == 200
-    assert len(response.get_json()["data"]) == 1
+
+    data = response.get_json()
+
+    assert data["success"] is True
+
+    assignment_ids = {
+        item["id"]
+        for item in data["data"]
+    }
+
+    assert str(assignment.id) in assignment_ids
 
 
-def test_create_assignment(client, session):
+def test_create_assignment(client, session, auth_headers):
     user = UserFactory()
 
     site = SiteFactory(
@@ -61,12 +74,13 @@ def test_create_assignment(client, session):
     response = client.post(
         "/api/user-site-roles",
         json=payload,
+        headers=auth_headers
     )
 
     assert response.status_code == 201
 
 
-def test_delete_assignment(client, session):
+def test_delete_assignment(client, session, auth_headers):
     user = UserFactory()
 
     site = SiteFactory(
@@ -97,7 +111,8 @@ def test_delete_assignment(client, session):
     ).get_json()["data"]
 
     response = client.delete(
-        f"/api/user-site-roles/{created['id']}"
+        f"/api/user-site-roles/{created['id']}",
+        headers=auth_headers
     )
 
     assert response.status_code == 200

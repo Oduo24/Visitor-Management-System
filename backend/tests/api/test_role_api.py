@@ -15,21 +15,7 @@ from tests.factories.role_factory import (
 )
 
 
-def test_get_roles(client, session):
-    role = RoleFactory()
-
-    OrganizationRepository.create(role.organization)
-    RoleRepository.create(role)
-
-    DatabaseSession.commit()
-
-    response = client.get("/api/roles")
-
-    assert response.status_code == 200
-    assert len(response.get_json()["data"]) == 1
-
-
-def test_get_role(client, session):
+def test_get_roles(client, session, auth_headers):
     role = RoleFactory()
 
     OrganizationRepository.create(role.organization)
@@ -38,13 +24,41 @@ def test_get_role(client, session):
     DatabaseSession.commit()
 
     response = client.get(
-        f"/api/roles/{role.id}"
+        "/api/roles",
+        headers=auth_headers
+    )
+
+    assert response.status_code == 200
+
+    data = response.get_json()
+
+    assert data["success"] is True
+
+    role_ids = {
+        item["id"]
+        for item in data["data"]
+    }
+
+    assert str(role.id) in role_ids
+
+
+def test_get_role(client, session, auth_headers):
+    role = RoleFactory()
+
+    OrganizationRepository.create(role.organization)
+    RoleRepository.create(role)
+
+    DatabaseSession.commit()
+
+    response = client.get(
+        f"/api/roles/{role.id}",
+        headers=auth_headers
     )
 
     assert response.status_code == 200
 
 
-def test_create_role(client, session):
+def test_create_role(client, session, auth_headers):
     organization = OrganizationFactory()
 
     OrganizationRepository.create(organization)
@@ -60,12 +74,13 @@ def test_create_role(client, session):
     response = client.post(
         "/api/roles",
         json=payload,
+        headers=auth_headers
     )
 
     assert response.status_code == 201
 
 
-def test_update_role(client, session):
+def test_update_role(client, session, auth_headers):
     role = RoleFactory()
 
     OrganizationRepository.create(role.organization)
@@ -78,12 +93,13 @@ def test_update_role(client, session):
         json={
             "name": "Security Officer",
         },
+        headers=auth_headers
     )
 
     assert response.status_code == 200
 
 
-def test_delete_role(client, session):
+def test_delete_role(client, session, auth_headers):
     role = RoleFactory()
 
     OrganizationRepository.create(role.organization)
@@ -92,7 +108,8 @@ def test_delete_role(client, session):
     DatabaseSession.commit()
 
     response = client.delete(
-        f"/api/roles/{role.id}"
+        f"/api/roles/{role.id}",
+        headers=auth_headers
     )
 
     assert response.status_code == 200

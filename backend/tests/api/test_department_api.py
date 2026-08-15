@@ -7,21 +7,7 @@ from tests.factories.organization_factory import OrganizationFactory
 from tests.factories.department_factory import DepartmentFactory
 
 
-def test_get_departments(client, session):
-    department = DepartmentFactory()
-
-    OrganizationRepository.create(department.organization)
-    DepartmentRepository.create(department)
-
-    DatabaseSession.commit()
-
-    response = client.get("/api/departments")
-
-    assert response.status_code == 200
-    assert len(response.get_json()["data"]) == 1
-
-
-def test_get_department(client, session):
+def test_get_departments(client, session, auth_headers):
     department = DepartmentFactory()
 
     OrganizationRepository.create(department.organization)
@@ -30,13 +16,41 @@ def test_get_department(client, session):
     DatabaseSession.commit()
 
     response = client.get(
-        f"/api/departments/{department.id}"
+        "/api/departments",
+        headers=auth_headers
+    )
+
+    assert response.status_code == 200
+
+    data = response.get_json()
+
+    assert data["success"] is True
+
+    department_ids = {
+        item["id"]
+        for item in data["data"]
+    }
+
+    assert str(department.id) in department_ids
+
+
+def test_get_department(client, session, auth_headers):
+    department = DepartmentFactory()
+
+    OrganizationRepository.create(department.organization)
+    DepartmentRepository.create(department)
+
+    DatabaseSession.commit()
+
+    response = client.get(
+        f"/api/departments/{department.id}",
+        headers=auth_headers
     )
 
     assert response.status_code == 200
 
 
-def test_create_department(client, session):
+def test_create_department(client, session, auth_headers):
     organization = OrganizationFactory()
 
     OrganizationRepository.create(organization)
@@ -52,12 +66,13 @@ def test_create_department(client, session):
     response = client.post(
         "/api/departments",
         json=payload,
+        headers=auth_headers
     )
 
     assert response.status_code == 201
 
 
-def test_update_department(client, session):
+def test_update_department(client, session, auth_headers):
     department = DepartmentFactory()
 
     OrganizationRepository.create(department.organization)
@@ -70,12 +85,13 @@ def test_update_department(client, session):
         json={
             "name": "Finance"
         },
+        headers=auth_headers
     )
 
     assert response.status_code == 200
 
 
-def test_delete_department(client, session):
+def test_delete_department(client, session, auth_headers):
     department = DepartmentFactory()
 
     OrganizationRepository.create(department.organization)
@@ -84,7 +100,8 @@ def test_delete_department(client, session):
     DatabaseSession.commit()
 
     response = client.delete(
-        f"/api/departments/{department.id}"
+        f"/api/departments/{department.id}",
+        headers=auth_headers
     )
 
     assert response.status_code == 200

@@ -13,7 +13,7 @@ from tests.factories.floor_factory import FloorFactory
 from tests.factories.destination_factory import DestinationFactory
 
 
-def test_get_destinations(client, session):
+def test_get_destinations(client, session, auth_headers):
     destination = DestinationFactory()
 
     OrganizationRepository.create(destination.floor.building.site.organization)
@@ -24,13 +24,13 @@ def test_get_destinations(client, session):
 
     DatabaseSession.commit()
 
-    response = client.get("/api/destinations")
+    response = client.get("/api/destinations", headers=auth_headers)
 
     assert response.status_code == 200
     assert len(response.get_json()["data"]) == 1
 
 
-def test_get_destination(client, session):
+def test_get_destination(client, session, auth_headers):
     destination = DestinationFactory()
 
     OrganizationRepository.create(destination.floor.building.site.organization)
@@ -41,12 +41,15 @@ def test_get_destination(client, session):
 
     DatabaseSession.commit()
 
-    response = client.get(f"/api/destinations/{destination.id}")
+    response = client.get(
+        f"/api/destinations/{destination.id}",
+        headers=auth_headers
+    )
 
     assert response.status_code == 200
 
 
-def test_create_destination(client, session):
+def test_create_destination(client, session, auth_headers):
     organization = OrganizationFactory()
     OrganizationRepository.create(organization)
     DatabaseSession.commit()
@@ -79,12 +82,13 @@ def test_create_destination(client, session):
             "name": "Human Resource",
             "code": "HR",
         },
+        headers=auth_headers
     )
 
     assert response.status_code == 201
 
 
-def test_update_destination(client, session):
+def test_update_destination(client, session, auth_headers):
     destination = DestinationFactory()
 
     OrganizationRepository.create(destination.floor.building.site.organization)
@@ -100,12 +104,13 @@ def test_update_destination(client, session):
         json={
             "name": "Finance"
         },
+        headers=auth_headers
     )
 
     assert response.status_code == 200
 
 
-def test_delete_destination(client, session):
+def test_delete_destination(client, session, auth_headers):
     destination = DestinationFactory()
 
     OrganizationRepository.create(destination.floor.building.site.organization)
@@ -117,7 +122,8 @@ def test_delete_destination(client, session):
     DatabaseSession.commit()
 
     response = client.delete(
-        f"/api/destinations/{destination.id}"
+        f"/api/destinations/{destination.id}",
+        headers=auth_headers
     )
 
     assert response.status_code == 200

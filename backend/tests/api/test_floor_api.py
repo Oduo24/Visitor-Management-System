@@ -11,7 +11,7 @@ from tests.factories.building_factory import BuildingFactory
 from tests.factories.floor_factory import FloorFactory
 
 
-def test_get_floors(client, session):
+def test_get_floors(client, session, auth_headers):
     floor = FloorFactory()
 
     OrganizationRepository.create(floor.building.site.organization)
@@ -21,13 +21,13 @@ def test_get_floors(client, session):
 
     DatabaseSession.commit()
 
-    response = client.get("/api/floors")
+    response = client.get("/api/floors", headers=auth_headers)
 
     assert response.status_code == 200
     assert len(response.get_json()["data"]) == 1
 
 
-def test_get_floor(client, session):
+def test_get_floor(client, session, auth_headers):
     floor = FloorFactory()
 
     OrganizationRepository.create(floor.building.site.organization)
@@ -37,12 +37,12 @@ def test_get_floor(client, session):
 
     DatabaseSession.commit()
 
-    response = client.get(f"/api/floors/{floor.id}")
+    response = client.get(f"/api/floors/{floor.id}", headers=auth_headers)
 
     assert response.status_code == 200
 
 
-def test_create_floor(client, session):
+def test_create_floor(client, session, auth_headers):
     organization = OrganizationFactory()
 
     OrganizationRepository.create(organization)
@@ -73,12 +73,13 @@ def test_create_floor(client, session):
     response = client.post(
         "/api/floors",
         json=payload,
+        headers=auth_headers
     )
 
     assert response.status_code == 201
 
 
-def test_update_floor(client, session):
+def test_update_floor(client, session, auth_headers):
     floor = FloorFactory()
 
     OrganizationRepository.create(floor.building.site.organization)
@@ -93,12 +94,13 @@ def test_update_floor(client, session):
         json={
             "name": "Updated Floor"
         },
+        headers=auth_headers
     )
 
     assert response.status_code == 200
 
 
-def test_delete_floor(client, session):
+def test_delete_floor(client, session, auth_headers):
     floor = FloorFactory()
 
     OrganizationRepository.create(floor.building.site.organization)
@@ -109,7 +111,8 @@ def test_delete_floor(client, session):
     DatabaseSession.commit()
 
     response = client.delete(
-        f"/api/floors/{floor.id}"
+        f"/api/floors/{floor.id}",
+        headers=auth_headers
     )
 
     assert response.status_code == 200

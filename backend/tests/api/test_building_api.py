@@ -9,7 +9,7 @@ from tests.factories.organization_factory import OrganizationFactory
 from tests.factories.site_factory import SiteFactory
 
 
-def test_get_buildings(client, session):
+def test_get_buildings(client, session, auth_headers):
     building = BuildingFactory()
 
     OrganizationRepository.create(building.site.organization)
@@ -18,7 +18,7 @@ def test_get_buildings(client, session):
 
     DatabaseSession.commit()
 
-    response = client.get("/api/buildings")
+    response = client.get("/api/buildings", headers=auth_headers)
 
     assert response.status_code == 200
 
@@ -28,7 +28,7 @@ def test_get_buildings(client, session):
     assert len(data["data"]) == 1
 
 
-def test_get_building(client, session):
+def test_get_building(client, session, auth_headers):
     building = BuildingFactory()
 
     OrganizationRepository.create(building.site.organization)
@@ -38,13 +38,14 @@ def test_get_building(client, session):
     DatabaseSession.commit()
 
     response = client.get(
-        f"/api/buildings/{building.id}"
+        f"/api/buildings/{building.id}",
+        headers=auth_headers
     )
 
     assert response.status_code == 200
 
 
-def test_create_building(client, session):
+def test_create_building(client, session, auth_headers):
     organization = OrganizationFactory()
 
     OrganizationRepository.create(organization)
@@ -67,12 +68,13 @@ def test_create_building(client, session):
     response = client.post(
         "/api/buildings",
         json=payload,
+        headers=auth_headers
     )
 
     assert response.status_code == 201
 
 
-def test_update_building(client, session):
+def test_update_building(client, session, auth_headers):
     building = BuildingFactory()
 
     OrganizationRepository.create(building.site.organization)
@@ -83,15 +85,17 @@ def test_update_building(client, session):
 
     response = client.put(
         f"/api/buildings/{building.id}",
+
         json={
             "name": "Updated Building"
         },
+        headers=auth_headers
     )
 
     assert response.status_code == 200
 
 
-def test_delete_building(client, session):
+def test_delete_building(client, session, auth_headers):
     building = BuildingFactory()
 
     OrganizationRepository.create(building.site.organization)
@@ -101,7 +105,8 @@ def test_delete_building(client, session):
     DatabaseSession.commit()
 
     response = client.delete(
-        f"/api/buildings/{building.id}"
+        f"/api/buildings/{building.id}",
+        headers=auth_headers
     )
 
     assert response.status_code == 200
