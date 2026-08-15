@@ -45,6 +45,11 @@ def create_app(config_class=None):
     from app.api.prebook_visit_api import prebook_visit_bp
     from app.api.walkin_visits import walkin_visit_bp
     from app.api.visit_approval import approval_bp
+    from app.api.badge_api import badge_bp
+    from app.api.visit_checkin_api import checkin_bp
+    from app.api.visit_qr_api import qr_bp
+    from app.api.visit_checkout_api import checkout_bp
+
  
 
     app.register_blueprint(health_bp, url_prefix="/api")
@@ -64,5 +69,9 @@ def create_app(config_class=None):
     app.register_blueprint(prebook_visit_bp, url_prefix="/api/prebook-visits")
     app.register_blueprint(walkin_visit_bp, url_prefix="/api/walkin-visits")
     app.register_blueprint(approval_bp, url_prefix="/api/visits")
+    app.register_blueprint(badge_bp, url_prefix="/api/visits")
+    app.register_blueprint(checkin_bp, url_prefix="/api/visits")
+    app.register_blueprint(qr_bp, url_prefix="/api/visits")
+    app.register_blueprint(checkout_bp, url_prefix="/api/visits")
 
     return app

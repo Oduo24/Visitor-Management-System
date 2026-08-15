@@ -92,6 +92,16 @@ class Visit(db.Model, UUIDMixin, TimestampMixin):
         String(1000),
     )
 
+    qr_token: Mapped[str | None] = mapped_column(
+    String(255),
+    unique=True,
+    index=True,
+    )
+
+    qr_generated_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+    )
+
     visitor = relationship(
         "Visitor",
         back_populates="visits",

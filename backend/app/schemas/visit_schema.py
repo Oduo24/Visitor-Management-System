@@ -55,3 +55,5 @@ class VisitResponseSchema(Schema):
     notes = fields.String()
     created_at = fields.DateTime()
     updated_at = fields.DateTime()
+    qr_token = fields.String()
+    qr_generated_at = fields.DateTime()
