@@ -8,3 +8,6 @@ from app.models.role import Role
 from app.models.user import User
 from app.models.user_site_role import UserSiteRole
 from app.models.visitor import Visitor
+from app.models.visit import Visit
+from app.models.visit_invitation import VisitInvitation
+from app.models.visit_notification import VisitNotification
