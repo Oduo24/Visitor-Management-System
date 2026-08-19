@@ -11,12 +11,13 @@ from app.repositories.floor_repository import FloorRepository
 from app.repositories.destination_repository import DestinationRepository
 from app.repositories.user_repository import UserRepository
 from app.repositories.visitor_repository import VisitorRepository
-
 from tests.factories.user_factory import UserFactory
 from tests.factories.visitor_factory import VisitorFactory
 from tests.factories.destination_factory import DestinationFactory
 
 from app.services.visit_service import VisitService
+from app.services.visit_qr_service import VisitQRService
+
 
 
 def seed_visit():
@@ -165,6 +166,113 @@ def test_generate_visit_qr_requires_authentication(
 
     response = client.post(
         f"/api/visits/{visit.id}/qr"
+    )
+
+    assert response.status_code == 401
+
+def test_validate_visit_qr(
+    client,
+    session,
+    auth_headers_factory,
+):
+
+    headers = auth_headers_factory(
+        "ORG_ADMIN"
+    )
+
+    visit = seed_visit()
+
+    generate_response = client.post(
+        f"/api/visits/{visit.id}/qr",
+        headers=headers,
+    )
+
+    assert generate_response.status_code == 200
+
+    qr_data = (
+        generate_response
+        .get_json()["data"]
+    )
+
+    response = client.post(
+        "/api/visits/qr/validate",
+        json={
+            "token": qr_data["qr_token"],
+        },
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+
+    data = response.get_json()["data"]
+
+    assert data["id"] == str(
+        visit.id
+    )
+
+    assert data["qr_token"] == (
+        qr_data["qr_token"]
+    )
+
+
+def test_validate_visit_qr_invalid_token(
+    client,
+    session,
+    auth_headers_factory,
+):
+
+    headers = auth_headers_factory(
+        "ORG_ADMIN"
+    )
+
+    response = client.post(
+        "/api/visits/qr/validate",
+        json={
+            "token": "invalid-token",
+        },
+        headers=headers,
+    )
+
+    assert response.status_code == 404
+
+    data = response.get_json()
+
+    assert data["success"] is False
+
+
+def test_validate_visit_qr_missing_token(
+    client,
+    session,
+    auth_headers_factory,
+):
+
+    headers = auth_headers_factory(
+        "ORG_ADMIN"
+    )
+
+    response = client.post(
+        "/api/visits/qr/validate",
+        json={},
+        headers=headers,
+    )
+
+    assert response.status_code == 409
+
+    data = response.get_json()
+
+    assert data["success"] is False
+
+
+def test_validate_visit_qr_requires_authentication(
+    client,
+    session,
+):
+
+    response = client.post(
+        "/api/visits/qr/validate",
+        json={
+            "token": "some-token",
+        },
     )
 
     assert response.status_code == 401

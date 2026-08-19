@@ -1,4 +1,5 @@
 from flask import Blueprint
+from flask import request
 
 from flask_jwt_extended import jwt_required
 
@@ -35,4 +36,25 @@ def generate_visit_qr(visit_id):
 
     return success(
         data=response_schema.dump(visit)
+    )
+
+@qr_bp.post("/qr/validate")
+@jwt_required()
+@permission_required(
+    Permission.VISIT_READ
+)
+def validate_visit_qr():
+
+    data = request.get_json() or {}
+
+    token = data.get("token")
+
+    visit = VisitQRService.validate(
+        token
+    )
+
+    return success(
+        data=response_schema.dump(
+            visit
+        )
     )

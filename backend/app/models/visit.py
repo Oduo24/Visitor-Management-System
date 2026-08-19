@@ -128,3 +128,10 @@ class Visit(db.Model, UUIDMixin, TimestampMixin):
         "Site",
         back_populates="visits",
     )
+
+    audit_logs = relationship(
+    "VisitAudit",
+    back_populates="visit",
+    cascade="all, delete-orphan",
+    order_by="VisitAudit.created_at",
+    )

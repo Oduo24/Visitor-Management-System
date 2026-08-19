@@ -4,13 +4,20 @@ from app.common.exceptions import NotFoundError
 
 from app.models.visit import Visit
 
+from app.common.constants import (
+    VisitStatus,
+    VisitAuditAction,
+)
+
+from app.services.visit_audit_service import (
+    VisitAuditService,
+)
+
 from app.repositories.visit_repository import VisitRepository
 from app.repositories.visitor_repository import VisitorRepository
 from app.repositories.user_repository import UserRepository
 from app.repositories.site_repository import SiteRepository
 from app.repositories.destination_repository import DestinationRepository
-
-from app.common.constants import VisitStatus
 
 
 class VisitService:
@@ -85,8 +92,13 @@ class VisitService:
             notes=data.get("notes"),
         )
 
-        VisitRepository.create(
-            visit
+        VisitRepository.create(visit)
+        
+        DatabaseSession.flush()
+
+        VisitAuditService.create(
+            visit_id=visit.id,
+            action=VisitAuditAction.CREATED,
         )
 
         DatabaseSession.commit()
@@ -110,3 +122,23 @@ class VisitService:
         )
 
         DatabaseSession.commit()
+
+    @staticmethod
+    def search(query):
+        return VisitRepository.search(query)
+
+    @staticmethod
+    def dashboard(
+        status=None,
+        site_id=None,
+        visit_type=None,
+        start_date=None,
+        end_date=None,
+    ):
+        return VisitRepository.dashboard(
+            status=status,
+            site_id=site_id,
+            visit_type=visit_type,
+            start_date=start_date,
+            end_date=end_date,
+        )

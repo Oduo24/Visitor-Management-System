@@ -3,10 +3,10 @@ from datetime import datetime, timezone
 from app.common.database import DatabaseSession
 from app.common.exceptions import ConflictError
 
-from app.common.constants import VisitStatus
+from app.common.constants import VisitAuditAction, VisitStatus
 
 from app.services.visit_service import VisitService
-
+from app.services.visit_audit_service import VisitAuditService
 
 class VisitCheckoutService:
 
@@ -36,6 +36,11 @@ class VisitCheckoutService:
 
         visit.checked_out_at = datetime.now(
             timezone.utc
+        )
+
+        VisitAuditService.create(
+        visit_id=visit.id,
+        action=VisitAuditAction.CHECKED_OUT,
         )
 
         DatabaseSession.commit()

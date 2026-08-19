@@ -3,10 +3,11 @@ from datetime import datetime, timezone
 from flask_jwt_extended import get_jwt_identity
 
 from app.common.database import DatabaseSession
-from app.common.constants import VisitStatus
+from app.common.constants import VisitAuditAction, VisitStatus
 from app.common.exceptions import ConflictError
 
 from app.services.visit_service import VisitService
+from app.services.visit_audit_service import VisitAuditService
 
 
 class VisitApprovalService:
@@ -39,6 +40,16 @@ class VisitApprovalService:
 
         if notes:
             visit.notes = notes
+
+        VisitAuditService.create(
+        visit_id=visit.id,
+        action=(
+            VisitAuditAction.APPROVED
+            if approved
+            else VisitAuditAction.REJECTED
+        ),
+        notes=notes,
+    )
 
         DatabaseSession.commit()
 

@@ -49,6 +49,9 @@ def create_app(config_class=None):
     from app.api.visit_checkin_api import checkin_bp
     from app.api.visit_qr_api import qr_bp
     from app.api.visit_checkout_api import checkout_bp
+    from app.api.visit_search_api import visit_search_bp
+    from app.api.visit_dashboard_api import visit_dashboard_bp
+    from app.api.visit_audit_api import audit_bp
 
  
 
@@ -73,5 +76,8 @@ def create_app(config_class=None):
     app.register_blueprint(checkin_bp, url_prefix="/api/visits")
     app.register_blueprint(qr_bp, url_prefix="/api/visits")
     app.register_blueprint(checkout_bp, url_prefix="/api/visits")
+    app.register_blueprint(visit_search_bp, url_prefix="/api/visits")
+    app.register_blueprint(visit_dashboard_bp, url_prefix="/api/visits")
+    app.register_blueprint(audit_bp, url_prefix="/api/visits")
 
     return app

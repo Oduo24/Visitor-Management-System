@@ -3,9 +3,10 @@ import re
 from app.common.database import DatabaseSession
 from app.common.exceptions import ConflictError
 
-from app.common.constants import VisitStatus
+from app.common.constants import VisitAuditAction, VisitStatus
 
 from app.services.visit_service import VisitService
+from app.services.visit_audit_service import VisitAuditService
 
 
 class BadgeService:
@@ -30,6 +31,12 @@ class BadgeService:
         badge_number = BadgeService._generate_badge_number()
 
         visit.badge_number = badge_number
+
+        VisitAuditService.create(
+        visit_id=visit.id,
+        action=VisitAuditAction.BADGE_ISSUED,
+        notes=f"Badge issued: {visit.badge_number}",
+        )
 
         DatabaseSession.commit()
 
