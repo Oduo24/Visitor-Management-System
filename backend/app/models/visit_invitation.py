@@ -34,7 +34,7 @@ class VisitInvitation(db.Model, UUIDMixin, TimestampMixin):
         nullable=False,
     )
 
-    used_at: Mapped[datetime | None] = mapped_column(
+    completed_at: Mapped[datetime | None] = mapped_column(
         DateTime,
     )
 

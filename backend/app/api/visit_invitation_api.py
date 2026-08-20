@@ -1,5 +1,4 @@
-# app/api/visit_invitation_api.py
-
+from flask import request
 from flask import Blueprint
 
 from flask_jwt_extended import jwt_required
@@ -10,6 +9,20 @@ from app.common.responses import success
 
 from app.services.visit_invitation_service import (
     VisitInvitationService,
+)
+
+
+from app.schemas.visit_invitation_schema import (
+    VisitInvitationResponseSchema,
+    VisitInvitationUpdateSchema,
+)
+
+response_schema = (
+    VisitInvitationResponseSchema()
+)
+
+update_schema = (
+    VisitInvitationUpdateSchema()
 )
 
 
@@ -56,20 +69,41 @@ def create_visit_invitation(
 )
 def get_visit_invitation(token):
 
-    invitation = (
+    data = (
         VisitInvitationService
-        .get_by_token(token)
+        .get_public_details(
+            token
+        )
     )
 
-    visit = invitation.visit
+    return success(
+        data=response_schema.dump(
+            data
+        )
+    )
+
+
+@invitation_bp.patch(
+    "/invitations/<token>"
+)
+def complete_visit_invitation(token):
+
+    data = update_schema.load(
+        request.get_json()
+    )
+
+    invitation = (
+        VisitInvitationService.complete(
+            token,
+            data,
+        )
+    )
 
     return success(
         data={
             "visit_id": str(
-                visit.id
+                invitation.visit_id
             ),
-            "expires_at": (
-                invitation.expires_at.isoformat()
-            ),
+            "completed": True,
         }
     )

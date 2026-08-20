@@ -115,7 +115,7 @@ def test_create_invitation(session):
     assert invitation.token is not None
     assert len(invitation.token) > 20
     assert invitation.expires_at is not None
-    assert invitation.used_at is None
+    assert invitation.completed_at is None
 
 
 def test_create_invitation_has_expiry(
@@ -196,7 +196,7 @@ def test_create_invitation_rejects_existing_active_invitation(
         )
 
 
-def test_create_invitation_allows_new_invitation_after_previous_used(
+def test_create_invitation_allows_new_invitation_after_previous_completed(
     session,
 ):
 
@@ -208,8 +208,9 @@ def test_create_invitation_allows_new_invitation_after_previous_used(
         )
     )
 
-    VisitInvitationService.use(
-        first.token
+    VisitInvitationService.complete(
+        first.token,
+        {},
     )
 
     second = (
@@ -294,7 +295,7 @@ def test_get_expired_invitation(
         )
 
 
-def test_get_used_invitation(
+def test_get_completed_invitation(
     session,
 ):
 
@@ -307,7 +308,7 @@ def test_get_used_invitation(
             datetime.now(timezone.utc)
             + timedelta(hours=24)
         ),
-        used_at=datetime.now(timezone.utc),
+        completed_at=datetime.now(timezone.utc),
     )
 
     VisitInvitationRepository.create(
@@ -318,14 +319,14 @@ def test_get_used_invitation(
 
     with pytest.raises(
         ConflictError,
-        match="already been used",
+        match="already been completed",
     ):
         VisitInvitationService.get_by_token(
             invitation.token
         )
 
 
-def test_use_invitation(
+def test_complete_invitation(
     session,
 ):
 
@@ -337,16 +338,16 @@ def test_use_invitation(
         )
     )
 
-    assert invitation.used_at is None
+    assert invitation.completed_at is None
 
-    used = (
-        VisitInvitationService.use(
-            invitation.token
+    completed = (
+        VisitInvitationService.complete(
+            invitation.token,
+            {},
         )
     )
 
-    assert used.id == invitation.id
-    assert used.used_at is not None
+    assert completed.completed_at is not None
 
 
 def test_use_invitation_cannot_be_used_twice(
@@ -361,14 +362,17 @@ def test_use_invitation_cannot_be_used_twice(
         )
     )
 
-    VisitInvitationService.use(
-        invitation.token
+    VisitInvitationService.complete(
+        invitation.token,
+        {},
+        
     )
 
     with pytest.raises(
         ConflictError,
-        match="already been used",
+        match="Invitation has already been completed.",
     ):
-        VisitInvitationService.use(
-            invitation.token
+        VisitInvitationService.complete(
+            invitation.token,
+            {},
         )

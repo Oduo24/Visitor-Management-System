@@ -1,4 +1,3 @@
-
 import secrets
 from datetime import datetime, timedelta, timezone
 
@@ -9,11 +8,9 @@ from app.common.exceptions import (
 )
 
 from app.models.visit_invitation import VisitInvitation
-
 from app.repositories.visit_invitation_repository import (
     VisitInvitationRepository,
 )
-
 from app.services.visit_service import VisitService
 
 
@@ -22,24 +19,47 @@ class VisitInvitationService:
     DEFAULT_EXPIRY_HOURS = 48
 
     @staticmethod
+    def _utc_now():
+        """
+        Return the current UTC time as a naive datetime.
+
+        The application currently persists DateTime values
+        without timezone information, so we normalize UTC
+        to a naive datetime at the database boundary.
+        """
+        return datetime.now(
+            timezone.utc
+        ).replace(
+            tzinfo=None
+        )
+
+    @staticmethod
     def create(
         visit_id,
         expiry_hours=None,
     ):
+
         visit = VisitService.get_by_id(
             visit_id
         )
 
         existing = (
             VisitInvitationRepository
-            .get_by_visit_id(visit.id)
+            .get_by_visit_id(
+                visit.id
+            )
+        )
+
+        now = (
+            VisitInvitationService
+            ._utc_now()
         )
 
         for invitation in existing:
+
             if (
-                invitation.used_at is None
-                and invitation.expires_at
-                > datetime.now(timezone.utc).replace(tzinfo=None)
+                invitation.completed_at is None
+                and invitation.expires_at > now
             ):
                 raise ConflictError(
                     "An active invitation already exists."
@@ -57,19 +77,15 @@ class VisitInvitationService:
             )
 
         invitation = VisitInvitation(
-        visit_id=visit.id,
-        token=secrets.token_urlsafe(32),
-        expires_at=(
-            datetime.now(
-                timezone.utc
-            ).replace(
-                tzinfo=None
-            )
-            + timedelta(
-                hours=expiry_hours
-            )
-        ),
-    )
+            visit_id=visit.id,
+            token=secrets.token_urlsafe(32),
+            expires_at=(
+                now
+                + timedelta(
+                    hours=expiry_hours
+                )
+            ),
+        )
 
         VisitInvitationRepository.create(
             invitation
@@ -92,11 +108,14 @@ class VisitInvitationService:
                 "Invitation not found."
             )
 
-        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        now = (
+            VisitInvitationService
+            ._utc_now()
+        )
 
-        if invitation.used_at:
+        if invitation.completed_at:
             raise ConflictError(
-                "Invitation has already been used."
+                "Invitation has already been completed."
             )
 
         if invitation.expires_at <= now:
@@ -107,20 +126,84 @@ class VisitInvitationService:
         return invitation
 
     @staticmethod
-    def use(token):
+    def get_public_details(token):
 
         invitation = (
             VisitInvitationService
             .get_by_token(token)
         )
 
-        invitation.used_at = (
-        datetime.now(
-            timezone.utc
-        ).replace(
-            tzinfo=None
+        visit = invitation.visit
+        visitor = visit.visitor
+
+        return {
+            "visit_id": visit.id,
+            "site": visit.site.name,
+            "host": (
+                f"{visit.host.first_name} "
+                f"{visit.host.last_name}"
+            ),
+            "visit_type": visit.visit_type,
+            "expected_arrival": (
+                visit.expected_arrival
+            ),
+            "purpose": visit.purpose,
+            "visitor": {
+                "first_name": visitor.first_name,
+                "middle_name": (
+                    visitor.middle_name
+                ),
+                "last_name": visitor.last_name,
+                "phone": visitor.phone,
+                "email": visitor.email,
+                "id_number": visitor.id_number,
+                "passport_number": (
+                    visitor.passport_number
+                ),
+                "vehicle_registration": (
+                    visitor.vehicle_registration
+                ),
+            },
+            "expires_at": invitation.expires_at,
+        }
+
+    @staticmethod
+    def complete(
+        token,
+        data,
+    ):
+
+        invitation = (
+            VisitInvitationService
+            .get_by_token(token)
         )
-    )
+
+        visitor = invitation.visit.visitor
+
+        allowed_fields = {
+            "first_name",
+            "middle_name",
+            "last_name",
+            "phone",
+            "email",
+            "id_number",
+            "passport_number",
+            "vehicle_registration",
+        }
+
+        for field, value in data.items():
+
+            if field in allowed_fields:
+                setattr(
+                    visitor,
+                    field,
+                    value,
+                )
+
+        invitation.completed_at = (
+            VisitInvitationService
+            ._utc_now()
+        )
 
         DatabaseSession.commit()
 
