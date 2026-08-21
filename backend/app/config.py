@@ -1,3 +1,4 @@
+from datetime import timedelta
 import os
 from dotenv import load_dotenv
 
@@ -20,10 +21,28 @@ class Config:
 
     JWT_SECRET_KEY = os.getenv("SECRET_KEY")
 
-
 class TestingConfig(Config):
     TESTING = True
 
     SQLALCHEMY_DATABASE_URI = (
         "mysql+pymysql://root:ruphinee@localhost/vms_test_db"
     )
+
+
+JWT_SECRET_KEY = os.getenv(
+    "JWT_SECRET_KEY",
+    "change-this-secret"
+)
+
+JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=30)
+
+JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
+
+
+FRONTEND_BASE_URL = (
+    "http://localhost:5173"
+)
+
+# Later
+# Development: http:localhost:5173
+# Production: https://vms.example.com

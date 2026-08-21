@@ -102,6 +102,18 @@ class Visit(db.Model, UUIDMixin, TimestampMixin):
         DateTime,
     )
 
+    visitor_code: Mapped[str | None] = mapped_column(
+    String(6),
+    nullable=True,
+    unique=True,
+    index=True,
+    )
+    
+    visitor_code_generated_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+
     visitor = relationship(
         "Visitor",
         back_populates="visits",

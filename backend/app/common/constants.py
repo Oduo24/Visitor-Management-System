@@ -26,27 +26,32 @@ class VisitAuditAction:
     CHECKED_IN = "CHECKED_IN"
     CHECKED_OUT = "CHECKED_OUT"
 
-class NotificationChannel:
-    EMAIL = "EMAIL"
-    SMS = "SMS"
-    IN_APP = "IN_APP"
-
-
-class NotificationStatus:
-    PENDING = "PENDING"
-    SENT = "SENT"
-    FAILED = "FAILED"
-
-
-class VisitNotificationEvent:
-    CREATED = "VISIT_CREATED"
-    INVITED = "VISITOR_INVITED"
-    APPROVED = "VISIT_APPROVED"
-    REJECTED = "VISIT_REJECTED"
-    CHECKED_IN = "VISITOR_CHECKED_IN"
-    CHECKED_OUT = "VISITOR_CHECKED_OUT"
 
 class VisitInvitationStatus:
     ACTIVE = "ACTIVE"
     USED = "USED"
     EXPIRED = "EXPIRED"
+
+
+class NotificationChannel:
+    EMAIL = "EMAIL"
+    SMS = "SMS"
+    IN_APP = "IN_APP"
+ 
+ 
+class NotificationStatus:
+    PENDING = "PENDING"
+    SENT = "SENT"
+    FAILED = "FAILED"
+ 
+ 
+class VisitNotificationEvent:
+    CREATED = "VISIT_CREATED"
+ 
+    VISITOR_INVITED = "VISITOR_INVITED"
+ 
+    APPROVED = "VISIT_APPROVED"
+    REJECTED = "VISIT_REJECTED"
+ 
+    CHECKED_IN = "VISITOR_CHECKED_IN"
+    CHECKED_OUT = "VISITOR_CHECKED_OUT"

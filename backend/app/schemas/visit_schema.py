@@ -57,3 +57,5 @@ class VisitResponseSchema(Schema):
     updated_at = fields.DateTime()
     qr_token = fields.String()
     qr_generated_at = fields.DateTime()
+    visitor_code = fields.String()
+    visitor_code_generated_at = fields.DateTime()

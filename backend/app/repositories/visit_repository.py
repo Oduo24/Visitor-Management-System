@@ -128,3 +128,15 @@ class VisitRepository:
             .order_by(Visit.created_at.desc())
             .all()
         )
+
+
+    @staticmethod
+    def get_by_visitor_code(code):
+    
+        return (
+            Visit.query
+            .filter(
+                Visit.visitor_code == code
+            )
+            .first()
+        )

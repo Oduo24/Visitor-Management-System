@@ -47,7 +47,7 @@ class Visitor(db.Model, UUIDMixin, TimestampMixin):
 
     phone: Mapped[str] = mapped_column(
         String(30),
-        nullable=False,
+        nullable=True,
         index=True,
     )
 

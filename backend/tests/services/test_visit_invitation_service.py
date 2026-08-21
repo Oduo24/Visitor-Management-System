@@ -47,6 +47,53 @@ from tests.factories.destination_factory import (
     DestinationFactory,
 )
 
+from app.common.constants import (
+    NotificationChannel,
+    NotificationStatus,
+    VisitNotificationEvent,
+)
+ 
+from app.repositories.visit_notification_repository import (
+    VisitNotificationRepository,
+)
+ 
+from app.services.notification_service import (
+    NotificationService,
+)
+
+class FakeEmailProvider:
+ 
+    def send(
+        self,
+        recipient,
+        subject,
+        message,
+    ):
+        return "automatic-email-id"
+ 
+class FakeSMSProvider:
+ 
+    def send(
+        self,
+        recipient,
+        message,
+    ):
+        return "automatic-sms-id"
+ 
+ 
+class FailingEmailProvider:
+ 
+    def send(
+        self,
+        recipient,
+        subject,
+        message,
+    ):
+        raise RuntimeError(
+            "Email unavailable"
+        )
+
+
 
 def seed_visit():
 
@@ -376,3 +423,311 @@ def test_use_invitation_cannot_be_used_twice(
             invitation.token,
             {},
         )
+
+
+
+def test_create_invitation_automatically_sends_email_and_sms(
+    session,
+    monkeypatch,
+):
+ 
+    monkeypatch.setattr(
+        NotificationService,
+        "email_provider",
+        FakeEmailProvider(),
+    )
+ 
+    monkeypatch.setattr(
+        NotificationService,
+        "sms_provider",
+        FakeSMSProvider(),
+    )
+ 
+    visit = seed_visit()
+ 
+    visit.visitor.email = (
+        "visitor@example.com"
+    )
+ 
+    visit.visitor.phone = (
+        "+254700000000"
+    )
+ 
+    DatabaseSession.commit()
+ 
+    invitation = (
+        VisitInvitationService.create(
+            visit.id
+        )
+    )
+ 
+    notifications = (
+        VisitNotificationRepository
+        .get_by_visit_id(
+            visit.id
+        )
+    )
+ 
+    assert len(notifications) == 2
+ 
+    channels = {
+        notification.channel
+        for notification in notifications
+    }
+ 
+    assert channels == {
+        NotificationChannel.EMAIL,
+        NotificationChannel.SMS,
+    }
+ 
+    assert all(
+        notification.event
+        == (
+            VisitNotificationEvent
+            .VISITOR_INVITED
+        )
+        for notification in notifications
+    )
+ 
+    assert all(
+        notification.status
+        == NotificationStatus.SENT
+        for notification in notifications
+    )
+ 
+    assert all(
+        invitation.token
+        in notification.message
+        for notification in notifications
+    )
+
+
+def test_create_invitation_automatically_sends_email_only(
+    session,
+    monkeypatch,
+):
+ 
+    monkeypatch.setattr(
+        NotificationService,
+        "email_provider",
+        FakeEmailProvider(),
+    )
+ 
+    monkeypatch.setattr(
+        NotificationService,
+        "sms_provider",
+        FakeSMSProvider(),
+    )
+ 
+    visit = seed_visit()
+ 
+    visit.visitor.email = (
+        "visitor@example.com"
+    )
+ 
+    visit.visitor.phone = None
+ 
+    DatabaseSession.commit()
+ 
+    invitation = (
+        VisitInvitationService.create(
+            visit.id
+        )
+    )
+ 
+    notifications = (
+        VisitNotificationRepository
+        .get_by_visit_id(
+            visit.id
+        )
+    )
+ 
+    assert len(notifications) == 1
+ 
+    notification = notifications[0]
+ 
+    assert (
+        notification.channel
+        == NotificationChannel.EMAIL
+    )
+ 
+    assert (
+        notification.recipient
+        == "visitor@example.com"
+    )
+ 
+    assert (
+        notification.status
+        == NotificationStatus.SENT
+    )
+ 
+    assert (
+        invitation.token
+        in notification.message
+    )
+
+
+def test_create_invitation_automatically_sends_sms_only(
+    session,
+    monkeypatch,
+):
+ 
+    monkeypatch.setattr(
+        NotificationService,
+        "email_provider",
+        FakeEmailProvider(),
+    )
+ 
+    monkeypatch.setattr(
+        NotificationService,
+        "sms_provider",
+        FakeSMSProvider(),
+    )
+ 
+    visit = seed_visit()
+ 
+    visit.visitor.email = None
+ 
+    visit.visitor.phone = (
+        "+254711111111"
+    )
+ 
+    DatabaseSession.commit()
+ 
+    invitation = (
+        VisitInvitationService.create(
+            visit.id
+        )
+    )
+ 
+    notifications = (
+        VisitNotificationRepository
+        .get_by_visit_id(
+            visit.id
+        )
+    )
+ 
+    assert len(notifications) == 1
+ 
+    notification = notifications[0]
+ 
+    assert (
+        notification.channel
+        == NotificationChannel.SMS
+    )
+ 
+    assert (
+        notification.recipient
+        == "+254711111111"
+    )
+ 
+    assert (
+        notification.status
+        == NotificationStatus.SENT
+    )
+ 
+    assert (
+        invitation.token
+        in notification.message
+    )
+
+
+def test_create_invitation_without_contact_details_still_succeeds(
+    session,
+    monkeypatch,
+):
+ 
+    monkeypatch.setattr(
+        NotificationService,
+        "email_provider",
+        FakeEmailProvider(),
+    )
+ 
+    monkeypatch.setattr(
+        NotificationService,
+        "sms_provider",
+        FakeSMSProvider(),
+    )
+ 
+    visit = seed_visit()
+ 
+    visit.visitor.email = None
+    visit.visitor.phone = None
+ 
+    DatabaseSession.commit()
+ 
+    invitation = (
+        VisitInvitationService.create(
+            visit.id
+        )
+    )
+ 
+    assert invitation.id is not None
+    assert invitation.token is not None
+ 
+    notifications = (
+        VisitNotificationRepository
+        .get_by_visit_id(
+            visit.id
+        )
+    )
+ 
+    assert notifications == []
+
+
+def test_create_invitation_survives_notification_failure(
+    session,
+    monkeypatch,
+):
+ 
+    monkeypatch.setattr(
+        NotificationService,
+        "email_provider",
+        FailingEmailProvider(),
+    )
+ 
+    visit = seed_visit()
+ 
+    visit.visitor.email = (
+        "visitor@example.com"
+    )
+ 
+    visit.visitor.phone = None
+ 
+    DatabaseSession.commit()
+ 
+    invitation = (
+        VisitInvitationService.create(
+            visit.id
+        )
+    )
+ 
+    assert invitation.id is not None
+ 
+    notifications = (
+        VisitNotificationRepository
+        .get_by_visit_id(
+            visit.id
+        )
+    )
+ 
+    assert len(notifications) == 1
+ 
+    notification = notifications[0]
+ 
+    assert (
+        notification.channel
+        == NotificationChannel.EMAIL
+    )
+ 
+    assert (
+        notification.status
+        == NotificationStatus.FAILED
+    )
+ 
+    assert (
+        notification.error_message
+        == "Email unavailable"
+    )
+ 
+    assert notification.sent_at is None

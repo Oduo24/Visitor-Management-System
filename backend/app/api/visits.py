@@ -13,6 +13,7 @@ from app.services.visit_service import VisitService
 
 from app.authorization.permissions import Permission
 from app.common.decorators import permission_required
+from app.services.visit_code_service import VisitCodeService
 
 
 visit_bp = Blueprint(
@@ -95,6 +96,29 @@ def create_visit():
 #         message="Visit updated successfully.",
 #         data=response_schema.dump(visit),
 #     )
+
+@visit_bp.get(
+    "/code/<visitor_code>"
+)
+@jwt_required()
+@permission_required(
+    Permission.VISIT_READ
+)
+def get_visit_by_code(
+    visitor_code,
+):
+ 
+    visit = (
+        VisitCodeService.get_by_code(
+            visitor_code
+        )
+    )
+ 
+    return success(
+        data=VisitResponseSchema().dump(
+            visit
+        )
+    )
 
 
 @visit_bp.delete("/<string:visit_id>")

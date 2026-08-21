@@ -13,6 +13,13 @@ from app.repositories.visit_invitation_repository import (
 )
 from app.services.visit_service import VisitService
 
+from app.services.visit_notification_service import (
+    VisitNotificationService,
+)
+
+from app.services.visit_code_service import (
+    VisitCodeService,
+)
 
 class VisitInvitationService:
 
@@ -92,6 +99,21 @@ class VisitInvitationService:
         )
 
         DatabaseSession.commit()
+
+        VisitCodeService.ensure_code(
+            visit.id
+        )
+
+        if (
+            visit.visitor.email
+            or visit.visitor.phone
+        ):
+            (
+                VisitNotificationService.send_visitor_invitation(
+                visit_id=visit.id,
+                invitation_token=invitation.token,
+            ) 
+        )
 
         return invitation
 
