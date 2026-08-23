@@ -16,7 +16,7 @@ class Floor(db.Model, UUIDMixin, TimestampMixin):
 
     name: Mapped[str] = mapped_column(
         String(100),
-        nullable=False,
+        nullable=True,
     )
 
     level: Mapped[int] = mapped_column(
