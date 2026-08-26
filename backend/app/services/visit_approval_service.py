@@ -3,11 +3,16 @@ from datetime import datetime, timezone
 from flask_jwt_extended import get_jwt_identity
 
 from app.common.database import DatabaseSession
-from app.common.constants import VisitAuditAction, VisitStatus
+from app.common.constants import (
+    VisitAuditAction,
+    VisitStatus,
+)
 from app.common.exceptions import ConflictError
 
 from app.services.visit_service import VisitService
-from app.services.visit_audit_service import VisitAuditService
+from app.services.visit_audit_service import (
+    VisitAuditService,
+)
 
 
 class VisitApprovalService:
@@ -28,28 +33,52 @@ class VisitApprovalService:
                 "Visit has already been processed."
             )
 
-        visit.status = (
-            VisitStatus.APPROVED
-            if approved
-            else VisitStatus.REJECTED
-        )
+        user_id = get_jwt_identity()
 
-        visit.approved_by = get_jwt_identity()
+        now = datetime.now(
+            timezone.utc
+        ).replace(tzinfo=None)
 
-        visit.approved_at = datetime.now(timezone.utc)
+
+        if approved:
+
+            visit.status = (
+                VisitStatus.APPROVED
+            )
+
+            visit.approved_by = user_id
+            visit.approved_at = now
+
+            visit.rejected_by = None
+            visit.rejected_at = None
+
+        else:
+
+            visit.status = (
+                VisitStatus.REJECTED
+            )
+
+            visit.rejected_by = user_id
+            visit.rejected_at = now
+
+            visit.approved_by = None
+            visit.approved_at = None
+
 
         if notes:
             visit.notes = notes
 
+
         VisitAuditService.create(
-        visit_id=visit.id,
-        action=(
-            VisitAuditAction.APPROVED
-            if approved
-            else VisitAuditAction.REJECTED
-        ),
-        notes=notes,
-    )
+            visit_id=visit.id,
+            action=(
+                VisitAuditAction.APPROVED
+                if approved
+                else VisitAuditAction.REJECTED
+            ),
+            notes=notes,
+        )
+
 
         DatabaseSession.commit()
 

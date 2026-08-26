@@ -36,7 +36,7 @@ class VisitCheckoutService:
 
         visit.checked_out_at = datetime.now(
             timezone.utc
-        )
+        ).replace(tzinfo=None)
 
         VisitAuditService.create(
         visit_id=visit.id,

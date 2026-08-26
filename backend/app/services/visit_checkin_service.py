@@ -36,13 +36,7 @@ class VisitCheckinService:
 
         visit.checked_in_at = datetime.now(
             timezone.utc
-        )
-
-        visit.status = VisitStatus.CHECKED_IN
-
-        visit.checked_in_at = datetime.now(
-            timezone.utc
-        )
+        ).replace(tzinfo=None)
     
         VisitAuditService.create(
             visit_id=visit.id,

@@ -4,16 +4,15 @@ import {
 } from "react-router-dom";
  
 import { ProtectedRoute } from "../auth/ProtectedRoute";
- 
 import { AppLayout } from "../components/layout/AppLayout";
- 
 import { LoginPage } from "../pages/LoginPage";
- 
 import { DashboardPage } from "../pages/DashboardPage";
- 
 import { VisitListPage } from "../pages/visits/VisitListPage";
- 
 import { VisitorListPage } from "../pages/visitors/VisitorListPage";
+import { VisitDetailPage } from "../pages/visits/VisitDetailPage";
+import { PrebookVisitPage } from "../pages/visits/PrebookVisitPage";
+import { WalkinVisitPage } from "../pages/visits/WalkinVisitPage";
+import { PublicInvitationPage } from "../pages/invitations/PublicInvitationPage";
  
  
 export const router =
@@ -21,6 +20,11 @@ export const router =
     {
       path: "/login",
       element: <LoginPage />,
+    },
+
+    {
+      path: "/invitations/:token",
+      element: <PublicInvitationPage />,
     },
  
     {
@@ -63,6 +67,25 @@ export const router =
               path: "/visitors",
               element: (
                 <VisitorListPage />
+              ),
+            },
+
+            {
+              path: "/visits/prebook",
+              element: (
+                <PrebookVisitPage />
+              ),
+            },
+            {
+              path: "/visits/walk-in",
+              element: (
+                <WalkinVisitPage />
+              ),
+            },
+            {
+              path: "/visits/:visitId",
+              element: (
+                <VisitDetailPage />
               ),
             },
           ],

@@ -84,6 +84,16 @@ class Visit(db.Model, UUIDMixin, TimestampMixin):
         DateTime,
     )
 
+    rejected_by: Mapped[str | None] = mapped_column(
+        ForeignKey("users.id"),
+        nullable=True,
+    )
+
+    rejected_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+
     badge_number: Mapped[str | None] = mapped_column(
         String(50),
     )

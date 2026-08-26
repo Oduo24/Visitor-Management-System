@@ -41,7 +41,7 @@ class VisitNotificationService:
         )
 
         invitation_url = (
-            f"{base_url}/invitation/"
+            f"{base_url}/invitations/"
             f"{invitation_token}"
         )
 

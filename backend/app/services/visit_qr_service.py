@@ -5,7 +5,7 @@ from app.common.database import DatabaseSession
 from app.common.exceptions import ConflictError, NotFoundError
 
 from app.services.visit_service import VisitService
-from app.common.constants import VisitAuditAction
+from app.common.constants import VisitAuditAction, VisitStatus
 from app.services.visit_audit_service import VisitAuditService
 from app.repositories.visit_repository import VisitRepository
 
@@ -18,6 +18,11 @@ class VisitQRService:
         visit = VisitService.get_by_id(
             visit_id
         )
+
+        if visit.status != VisitStatus.APPROVED:
+            raise ConflictError(
+                "QR code can only be generated for an approved visit."
+            )
 
         if visit.qr_token:
             raise ConflictError(

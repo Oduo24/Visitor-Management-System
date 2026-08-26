@@ -11,6 +11,6 @@ class WalkinVisitCreateSchema(Schema):
 
     site_id = fields.UUID(required=True)
 
-    purpose = fields.String(required=False)
+    purpose = fields.String(required=False, allow_none=True)
 
-    notes = fields.String(required=False)
+    notes = fields.String(required=False, allow_none=True)
