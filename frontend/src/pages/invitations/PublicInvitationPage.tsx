@@ -365,10 +365,7 @@ export function PublicInvitationPage() {
           </p>
  
           <p>
-            Please keep your visitor
-            code or invitation
-            information available when
-            you arrive.
+            Once your visit is approved, your official visitor pass will be sent separately.
           </p>
  
         </div>

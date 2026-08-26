@@ -49,6 +49,12 @@ export function AppLayout() {
           >
             Visitors
           </NavLink>
+
+          <NavLink
+            to="/qr-kiosk"
+          >
+            QR Kiosk
+          </NavLink>
  
         </nav>
  

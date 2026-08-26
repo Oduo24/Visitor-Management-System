@@ -124,6 +124,23 @@ class Visit(db.Model, UUIDMixin, TimestampMixin):
         nullable=True,
     )
 
+    access_pass_token: Mapped[str | None] = mapped_column(
+    String(128),
+    unique=True,
+    index=True,
+    nullable=True,
+    )
+    
+    access_pass_generated_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+    
+    official_invitation_sent_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+
     visitor = relationship(
         "Visitor",
         back_populates="visits",

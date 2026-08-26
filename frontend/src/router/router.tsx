@@ -13,6 +13,8 @@ import { VisitDetailPage } from "../pages/visits/VisitDetailPage";
 import { PrebookVisitPage } from "../pages/visits/PrebookVisitPage";
 import { WalkinVisitPage } from "../pages/visits/WalkinVisitPage";
 import { PublicInvitationPage } from "../pages/invitations/PublicInvitationPage";
+import { VisitorPassPage } from "../pages/invitations/VisitorPassPage";
+import { QrKioskPage } from "../pages/visits/QrKioskPage";
  
  
 export const router =
@@ -26,7 +28,12 @@ export const router =
       path: "/invitations/:token",
       element: <PublicInvitationPage />,
     },
- 
+
+    {
+      path: "/visitor-pass/:token",
+      element: <VisitorPassPage />,
+    },
+
     {
       element: (
         <ProtectedRoute />
@@ -86,6 +93,12 @@ export const router =
               path: "/visits/:visitId",
               element: (
                 <VisitDetailPage />
+              ),
+            },
+            {
+              path: "/qr-kiosk",
+              element: (
+                <QrKioskPage />
               ),
             },
           ],

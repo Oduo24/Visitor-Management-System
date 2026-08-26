@@ -14,6 +14,11 @@ from app.services.visit_audit_service import (
     VisitAuditService,
 )
 
+from app.services.visit_access_pass_service import (
+    VisitAccessPassService,
+)
+from app.models import visit
+
 
 class VisitApprovalService:
 
@@ -82,4 +87,9 @@ class VisitApprovalService:
 
         DatabaseSession.commit()
 
+        if approved:
+            VisitAccessPassService.finalize_if_ready(
+                visit.id
+            )
+    
         return visit

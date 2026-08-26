@@ -140,3 +140,9 @@ class VisitRepository:
             )
             .first()
         )
+
+    @staticmethod
+    def get_by_access_pass_token(token):
+        return Visit.query.filter_by(
+            access_pass_token=token
+        ).first()

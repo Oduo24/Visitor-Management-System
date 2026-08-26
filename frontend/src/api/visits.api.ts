@@ -113,3 +113,39 @@ export async function checkOutVisit(
     `/visits/${visitId}/check-out`
   );
 }
+
+
+export async function getVisitByCode(
+  visitorCode: string
+): Promise<Visit> {
+ 
+  const response =
+    await apiClient.get<
+      ApiResponse<Visit>
+    >(
+      `/visits/code/${
+        encodeURIComponent(
+          visitorCode
+        )
+      }`
+    );
+ 
+  return response.data.data;
+}
+
+export async function validateVisitQR(
+  token: string
+): Promise<Visit> {
+ 
+  const response =
+    await apiClient.post<
+      ApiResponse<Visit>
+    >(
+      "/visits/qr/validate",
+      {
+        token,
+      }
+    );
+ 
+  return response.data.data;
+}

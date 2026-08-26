@@ -17,8 +17,8 @@ from app.services.visit_notification_service import (
     VisitNotificationService,
 )
 
-from app.services.visit_code_service import (
-    VisitCodeService,
+from app.services.visit_access_pass_service import (
+    VisitAccessPassService,
 )
 
 class VisitInvitationService:
@@ -100,16 +100,13 @@ class VisitInvitationService:
 
         DatabaseSession.commit()
 
-        VisitCodeService.ensure_code(
-            visit.id
-        )
 
         if (
             visit.visitor.email
             or visit.visitor.phone
         ):
             (
-                VisitNotificationService.send_visitor_invitation(
+                VisitNotificationService.send_registration_invitation(
                 visit_id=visit.id,
                 invitation_token=invitation.token,
             ) 
@@ -228,5 +225,9 @@ class VisitInvitationService:
         )
 
         DatabaseSession.commit()
-
+ 
+        VisitAccessPassService.finalize_if_ready(
+            invitation.visit_id
+        )
+        
         return invitation

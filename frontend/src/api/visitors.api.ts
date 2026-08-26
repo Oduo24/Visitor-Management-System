@@ -1,25 +1,85 @@
-import { apiClient } from "./client";
+import {
+  apiClient,
+} from "./client";
  
 import type {
   ApiResponse,
 } from "../types/auth";
  
 import type {
-  VisitorLookup,
+  Visitor,
   CreateVisitorPayload,
-} from "../types/lookups";
+  UpdateVisitorPayload,
+} from "../types/visitor";
+ 
+ 
+export async function getVisitors():
+  Promise<Visitor[]> {
+ 
+  const response =
+    await apiClient.get<
+      ApiResponse<Visitor[]>
+    >(
+      "/visitors"
+    );
+ 
+  return response.data.data;
+}
+ 
+ 
+export async function getVisitorById(
+  visitorId: string
+): Promise<Visitor> {
+ 
+  const response =
+    await apiClient.get<
+      ApiResponse<Visitor>
+    >(
+      `/visitors/${visitorId}`
+    );
+ 
+  return response.data.data;
+}
  
  
 export async function createVisitor(
   payload: CreateVisitorPayload
-): Promise<VisitorLookup> {
+): Promise<Visitor> {
  
-  const response = await apiClient.post<
-    ApiResponse<VisitorLookup>
-  >(
-    "/visitors",
-    payload
-  );
+  const response =
+    await apiClient.post<
+      ApiResponse<Visitor>
+    >(
+      "/visitors",
+      payload
+    );
  
   return response.data.data;
+}
+ 
+ 
+export async function updateVisitor(
+  visitorId: string,
+  payload: UpdateVisitorPayload
+): Promise<Visitor> {
+ 
+  const response =
+    await apiClient.put<
+      ApiResponse<Visitor>
+    >(
+      `/visitors/${visitorId}`,
+      payload
+    );
+ 
+  return response.data.data;
+}
+ 
+ 
+export async function deleteVisitor(
+  visitorId: string
+): Promise<void> {
+ 
+  await apiClient.delete(
+    `/visitors/${visitorId}`
+  );
 }
