@@ -67,6 +67,12 @@ export function AppLayout() {
           >
             Users
           </NavLink>
+
+          <NavLink
+            to="/reports/visits"
+          >
+            Reports
+          </NavLink>
  
         </nav>
  

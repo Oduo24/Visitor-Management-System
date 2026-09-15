@@ -17,6 +17,7 @@ import { VisitorPassPage } from "../pages/invitations/VisitorPassPage";
 import { QrKioskPage } from "../pages/visits/QrKioskPage";
 import { SiteListPage } from "../pages/sites/SiteListPage";
 import { UserListPage } from "../pages/users/UserListPage";
+import { VisitActivityReportPage } from "../pages/reports/VisitActivityReportPage";
  
  
 export const router =
@@ -113,6 +114,12 @@ export const router =
               path: "/users",
               element: (
                 <UserListPage />
+              ),
+            },
+            {
+              path: "/reports/visits",
+              element: (
+                <VisitActivityReportPage />
               ),
             },
           ],
