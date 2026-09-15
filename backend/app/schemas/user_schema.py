@@ -17,17 +17,19 @@ class UserCreateSchema(Schema):
 
     email = fields.Email(required=True)
 
-    phone = fields.String()
+    phone = fields.String(allow_none=True)
 
     employee_number = fields.String(
-        validate=validate.Length(max=50)
+        validate=validate.Length(max=50),
+        allow_none=True
     )
 
     job_title = fields.String(
-        validate=validate.Length(max=150)
+        validate=validate.Length(max=150),
+        allow_none=True
     )
 
-    profile_photo_url = fields.Url()
+    profile_photo_url = fields.Url(allow_none=True)
 
     password = fields.String(
         required=True,
@@ -52,17 +54,19 @@ class UserUpdateSchema(Schema):
 
     email = fields.Email()
 
-    phone = fields.String()
+    phone = fields.String(allow_none=True)
 
     employee_number = fields.String(
-        validate=validate.Length(max=50)
+        validate=validate.Length(max=50),
+        allow_none=True
     )
 
     job_title = fields.String(
-        validate=validate.Length(max=150)
+        validate=validate.Length(max=150),
+        allow_none=True
     )
 
-    profile_photo_url = fields.Url()
+    profile_photo_url = fields.Url(allow_none=True)
 
     password = fields.String(
         validate=validate.Length(min=8),

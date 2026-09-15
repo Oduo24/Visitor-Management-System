@@ -55,6 +55,18 @@ export function AppLayout() {
           >
             QR Kiosk
           </NavLink>
+
+          <NavLink
+            to="/sites"
+          >
+            Sites
+          </NavLink>
+
+          <NavLink
+            to="/users"
+          >
+            Users
+          </NavLink>
  
         </nav>
  

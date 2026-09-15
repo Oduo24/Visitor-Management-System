@@ -15,6 +15,8 @@ import { WalkinVisitPage } from "../pages/visits/WalkinVisitPage";
 import { PublicInvitationPage } from "../pages/invitations/PublicInvitationPage";
 import { VisitorPassPage } from "../pages/invitations/VisitorPassPage";
 import { QrKioskPage } from "../pages/visits/QrKioskPage";
+import { SiteListPage } from "../pages/sites/SiteListPage";
+import { UserListPage } from "../pages/users/UserListPage";
  
  
 export const router =
@@ -99,6 +101,18 @@ export const router =
               path: "/qr-kiosk",
               element: (
                 <QrKioskPage />
+              ),
+            },
+            {
+              path: "/sites",
+              element: (
+                <SiteListPage />
+              ),
+            },
+            {
+              path: "/users",
+              element: (
+                <UserListPage />
               ),
             },
           ],

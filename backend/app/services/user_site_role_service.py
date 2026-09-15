@@ -46,6 +46,24 @@ class UserSiteRoleService:
                 "Role not found."
             )
 
+        if (
+            site.organization_id
+            != user.organization_id
+        ):
+            raise ConflictError(
+                "Site does not belong to "
+                "the user's organization."
+            )
+        
+        if (
+            role.organization_id
+            != user.organization_id
+        ):
+            raise ConflictError(
+                "Role does not belong to "
+                "the user's organization."
+            )
+
         existing = (
             UserSiteRoleRepository.get_by_user_site_role(
                 data["user_id"],

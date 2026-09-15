@@ -43,6 +43,15 @@ class UserService:
                     "Department not found."
                 )
 
+            if (
+                department.organization_id
+                != organization.id
+            ):
+                raise ConflictError(
+                    "Department does not belong "
+                    "to the selected organization."
+                )
+
         if UserRepository.get_by_email(data["email"]):
             raise ConflictError(
                 "Email already exists."
@@ -123,6 +132,7 @@ class UserService:
                     "Organization not found."
                 )
 
+
             user.organization_id = data["organization_id"]
 
         if "department_id" in data:
@@ -134,6 +144,15 @@ class UserService:
                 if not department:
                     raise NotFoundError(
                         "Department not found."
+                    )
+
+                if (
+                    department.organization_id
+                    != organization.id
+                ):
+                    raise ConflictError(
+                        "Department does not belong "
+                        "to the selected organization."
                     )
 
             user.department_id = data["department_id"]
@@ -179,20 +198,16 @@ class UserService:
             user.last_name,
         )
 
-        user.phone = data.get(
-            "phone",
-            user.phone,
-        )
-
-        user.job_title = data.get(
-            "job_title",
-            user.job_title,
-        )
-
-        user.profile_photo_url = data.get(
-            "profile_photo_url",
-            user.profile_photo_url,
-        )
+        if "phone" in data:
+            user.phone = data["phone"]
+        
+        if "job_title" in data:
+            user.job_title = data["job_title"]
+        
+        if "profile_photo_url" in data:
+            user.profile_photo_url = (
+                data["profile_photo_url"]
+            )
 
         if "password" in data:
             user.password_hash = generate_password_hash(

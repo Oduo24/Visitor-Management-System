@@ -66,19 +66,16 @@ class Site(db.Model, UUIDMixin, TimestampMixin):
     buildings = relationship(
     "Building",
     back_populates="site",
-    cascade="all, delete-orphan"
     )
 
     user_site_roles = relationship(
     "UserSiteRole",
     back_populates="site",
-    cascade="all, delete-orphan",
     )
 
     visits = relationship(
     "Visit",
     back_populates="site",
-    cascade="all, delete-orphan",
     )
 
 

@@ -1,4 +1,4 @@
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 
 from app.extensions import db
 from app.models.visit import Visit
@@ -88,6 +88,45 @@ class VisitRepository:
         )
 
     @staticmethod
+    def _dashboard_query(
+        status=None,
+        site_id=None,
+        visit_type=None,
+        start_date=None,
+        end_date=None,
+    ):
+        query = Visit.query
+    
+        if status:
+            query = query.filter(
+                Visit.status == status
+            )
+    
+        if site_id:
+            query = query.filter(
+                Visit.site_id == site_id
+            )
+    
+        if visit_type:
+            query = query.filter(
+                Visit.visit_type == visit_type
+            )
+    
+        if start_date:
+            query = query.filter(
+                Visit.created_at >= start_date
+            )
+    
+        if end_date:
+            # end_date is exclusive
+            query = query.filter(
+                Visit.created_at < end_date
+            )
+    
+        return query
+ 
+ 
+    @staticmethod
     def dashboard(
         status=None,
         site_id=None,
@@ -95,39 +134,97 @@ class VisitRepository:
         start_date=None,
         end_date=None,
     ):
-
-        query = Visit.query
-
-        if status:
-            query = query.filter(
-                Visit.status == status
+        query = (
+            VisitRepository
+            ._dashboard_query(
+                status=status,
+                site_id=site_id,
+                visit_type=visit_type,
+                start_date=start_date,
+                end_date=end_date,
             )
-
-        if site_id:
-            query = query.filter(
-                Visit.site_id == site_id
-            )
-
-        if visit_type:
-            query = query.filter(
-                Visit.visit_type == visit_type
-            )
-
-        if start_date:
-            query = query.filter(
-                Visit.created_at >= start_date
-            )
-
-        if end_date:
-            query = query.filter(
-                Visit.created_at <= end_date
-            )
-
+        )
+    
         return (
             query
-            .order_by(Visit.created_at.desc())
+            .order_by(
+                Visit.created_at.desc()
+            )
             .all()
         )
+    
+    
+    @staticmethod
+    def dashboard_summary(
+        status=None,
+        site_id=None,
+        visit_type=None,
+        start_date=None,
+        end_date=None,
+    ):
+        query = (
+            VisitRepository
+            ._dashboard_query(
+                status=status,
+                site_id=site_id,
+                visit_type=visit_type,
+                start_date=start_date,
+                end_date=end_date,
+            )
+        )
+    
+        total_visits = (
+            query
+            .with_entities(
+                func.count(Visit.id)
+            )
+            .scalar()
+            or 0
+        )
+    
+    
+        status_rows = (
+            query
+            .with_entities(
+                Visit.status,
+                func.count(Visit.id),
+            )
+            .group_by(
+                Visit.status
+            )
+            .all()
+        )
+    
+    
+        visit_type_rows = (
+            query
+            .with_entities(
+                Visit.visit_type,
+                func.count(Visit.id),
+            )
+            .group_by(
+                Visit.visit_type
+            )
+            .all()
+        )
+    
+    
+        return {
+            "total_visits":
+                total_visits,
+    
+            "status_breakdown": {
+                status: count
+                for status, count
+                in status_rows
+            },
+    
+            "visit_type_breakdown": {
+                visit_type: count
+                for visit_type, count
+                in visit_type_rows
+            },
+        }
 
 
     @staticmethod

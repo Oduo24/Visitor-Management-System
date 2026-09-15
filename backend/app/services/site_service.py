@@ -28,6 +28,7 @@ class SiteService:
             address=data.get("address"),
             city=data.get("city"),
             country=data.get("country"),
+            timezone=data.get("timezone", "Africa/Nairobi"),
             phone=data.get("phone"),
             email=data.get("email"),
             is_active=data.get("is_active", True),

@@ -1125,3 +1125,77 @@ button {
   color: #6b7280;
 }
 
+.site-form-card {
+  margin-bottom: 24px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(180px, 1fr)
+    );
+  gap: 16px;
+  margin: 24px 0;
+}
+ 
+.dashboard-card {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: white;
+}
+ 
+.dashboard-card-title {
+  font-size: 14px;
+  margin-bottom: 8px;
+  opacity: 0.7;
+}
+ 
+.dashboard-card-value {
+  font-size: 32px;
+  font-weight: 700;
+}
+ 
+.dashboard-section-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(320px, 1fr)
+    );
+  gap: 20px;
+}
+ 
+.breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+ 
+.breakdown-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+ 
+.breakdown-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+ 
+.breakdown-track {
+  height: 8px;
+  background: #eee;
+  border-radius: 999px;
+  overflow: hidden;
+}
+ 
+.breakdown-fill {
+  height: 100%;
+  background: currentColor;
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
