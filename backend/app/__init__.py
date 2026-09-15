@@ -54,6 +54,7 @@ def create_app(config_class=None):
     from app.api.visit_audit_api import audit_bp
     from app.api.visit_invitation_api import invitation_bp
     from app.api.visit_access_pass_api import visit_access_pass_bp
+    from app.api.visit_report_api import visit_report_bp
 
  
 
@@ -83,6 +84,6 @@ def create_app(config_class=None):
     app.register_blueprint(audit_bp, url_prefix="/api/visits")
     app.register_blueprint(invitation_bp, url_prefix="/api/visits")
     app.register_blueprint(visit_access_pass_bp, url_prefix="/api/visits")
+    app.register_blueprint(visit_report_bp, url_prefix="/api/visits")
 
-    
     return app
